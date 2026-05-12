@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fffbe8">
+<title>Dondurma Tarifleri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown:  #6B3A2A;
+    --pink:   #F9C8D8;
+    --mint:   #C8F0DC;
+    --cream:  #FFFBE8;
+    --peach:  #FFCC80;
+    --bg:     #FFFBE8;
+    --surface:#FFFFFF;
+    --text:   #3D1F14;
+    --text2:  #8A5A48;
+    --text3:  #B89488;
+    --border: rgba(107,58,42,0.13);
+    --r: 16px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body { height:100%; background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif; overflow:hidden; }
+
+  #app {
+    width:100%; max-width:430px; height:100dvh;
+    margin:0 auto; display:flex; flex-direction:column;
+    position:relative; overflow:hidden; background:var(--bg);
+  }
+
+  /* SCREENS */
+  .screen {
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    transition:transform .38s cubic-bezier(.4,0,.2,1), opacity .38s;
+    background:var(--bg);
+  }
+  .screen.hidden     { transform:translateX(100%); opacity:0; pointer-events:none; }
+  .screen.slide-left { transform:translateX(-28%); opacity:0; pointer-events:none; }
+
+  /* HOME HEADER */
+  .home-header { padding:54px 24px 0; flex-shrink:0; position:relative; overflow:hidden; }
+
+  .hdr-blobs { position:absolute; top:0; right:0; width:180px; height:140px; pointer-events:none; }
+  .hdr-blob  { position:absolute; border-radius:50%; }
+  .b1 { width:110px; height:110px; background:var(--pink);  top:-20px; right:-20px; opacity:.55; }
+  .b2 { width:70px;  height:70px;  background:var(--peach); top:40px;  right:55px;  opacity:.45; }
+  .b3 { width:45px;  height:45px;  background:var(--mint);  top:8px;   right:90px;  opacity:.5;  }
+
+  .logo-eye  { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--text3); font-weight:700; margin-bottom:5px; }
+  .logo-name { font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:700; color:var(--brown); line-height:1.1; letter-spacing:-.5px; }
+  .logo-name em { font-style:italic; opacity:.5; }
+  .hdr-count { font-size:12px; color:var(--text3); margin-top:5px; font-weight:500; }
+
+  /* SEARCH */
+  .search-wrap { padding:16px 24px 0; flex-shrink:0; }
+  .search-box  { display:flex; align-items:center; gap:10px; background:var(--surface); border:1.5px solid var(--border); border-radius:50px; padding:11px 18px; box-shadow:0 2px 8px rgba(107,58,42,.06); }
+  .search-box svg { color:var(--text3); flex-shrink:0; }
+  .search-box input { background:none; border:none; outline:none; color:var(--text); font-family:'Nunito',sans-serif; font-size:14px; width:100%; font-weight:500; }
+  .search-box input::placeholder { color:var(--text3); font-weight:400; }
+
+  /* CAT TABS */
+  .cat-tabs { padding:13px 24px 0; display:flex; gap:7px; overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
+  .cat-tabs::-webkit-scrollbar { display:none; }
+  .cat-tab { flex-shrink:0; padding:7px 15px; border-radius:50px; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; border:1.5px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; transition:all .18s; }
+  .cat-tab.active { background:var(--brown); border-color:var(--brown); color:#fff; }
+
+  /* LIST */
+  .recipes-list { flex:1; overflow-y:auto; padding:12px 16px 24px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .recipes-list::-webkit-scrollbar { display:none; }
+
+  .section-label { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text3); padding:14px 8px 6px; font-weight:700; }
+
+  /* CARD */
+  .recipe-card { display:flex; align-items:center; gap:14px; padding:13px 14px; border-radius:var(--r); margin-bottom:7px; cursor:pointer; background:var(--surface); border:1.5px solid var(--border); box-shadow:0 1px 4px rgba(107,58,42,.05); transition:all .17s; animation:cardIn .3s ease both; }
+  .recipe-card:active { transform:scale(.97); box-shadow:none; }
+  @keyframes cardIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  .card-swatch { width:50px; height:50px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .card-mono   { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:24px; font-weight:700; line-height:1; }
+  .card-info   { flex:1; min-width:0; }
+  .card-title  { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:var(--text); line-height:1.25; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-meta   { display:flex; gap:10px; align-items:center; }
+  .card-type   { font-size:11px; color:var(--text3); font-weight:500; }
+  .card-srv    { display:flex; align-items:center; gap:3px; font-size:11px; color:var(--text3); font-weight:500; }
+  .card-arrow  { color:var(--text3); flex-shrink:0; transition:transform .18s; }
+  .recipe-card:hover .card-arrow { transform:translateX(3px); }
+
+  /* DETAIL */
+  .detail-topbar { display:flex; align-items:center; padding:52px 20px 12px; gap:12px; flex-shrink:0; }
+  .back-btn { width:38px; height:38px; border-radius:50%; background:var(--surface); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:all .17s; box-shadow:0 1px 4px rgba(107,58,42,.07); }
+  .back-btn:active { transform:scale(.9); }
+  .detail-topbar-cat { font-size:12px; font-weight:700; color:var(--text3); letter-spacing:.5px; text-transform:uppercase; }
+
+  .detail-hero { padding:0 24px 18px; flex-shrink:0; }
+  .detail-band { height:4px; width:36px; border-radius:4px; margin-bottom:14px; }
+  .detail-title { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:700; color:var(--brown); line-height:1.15; margin-bottom:12px; }
+
+  .detail-badges { display:flex; gap:7px; flex-wrap:wrap; }
+  .badge { display:flex; align-items:center; gap:5px; padding:5px 11px; border-radius:50px; font-size:11px; font-weight:600; border:1.5px solid var(--border); color:var(--text2); background:var(--surface); font-family:'Nunito',sans-serif; }
+
+  /* TABS */
+  .detail-tabs { display:flex; padding:0 24px; border-bottom:1.5px solid var(--border); flex-shrink:0; background:var(--bg); }
+  .dtab { flex:1; padding:11px 8px; text-align:center; font-size:11px; font-weight:800; font-family:'Nunito',sans-serif; letter-spacing:.8px; text-transform:uppercase; color:var(--text3); cursor:pointer; border-bottom:2.5px solid transparent; margin-bottom:-1.5px; transition:all .18s; }
+  .dtab.active { color:var(--brown); border-bottom-color:var(--brown); }
+
+  .detail-body { flex:1; overflow-y:auto; padding:20px 24px 36px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .detail-body::-webkit-scrollbar { display:none; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* INGREDIENTS */
+  .ing-header { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text3); font-weight:700; margin-bottom:12px; }
+  .ingredient-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(107,58,42,.07); }
+  .ingredient-item:last-child { border-bottom:none; }
+  .ing-pill { padding:4px 11px; border-radius:50px; font-size:12px; font-weight:700; flex-shrink:0; min-width:68px; text-align:center; font-family:'Nunito',sans-serif; }
+  .ing-name { font-size:14px; color:var(--text); font-weight:500; flex:1; line-height:1.35; }
+
+  /* STEPS */
+  .step-item { display:flex; gap:14px; margin-bottom:17px; align-items:flex-start; }
+  .step-num  { width:26px; height:26px; border-radius:50%; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; font-family:'Nunito',sans-serif; }
+  .step-text { font-size:14px; line-height:1.7; color:var(--text); flex:1; font-weight:500; padding-top:3px; }
+
+  .note-box { margin-top:18px; padding:14px 16px; border-radius:12px; border-left:3px solid var(--peach); background:rgba(255,204,128,.12); font-size:13px; line-height:1.65; color:var(--text2); font-weight:500; }
+  .note-box strong { color:var(--brown); }
+
+  /* EMPTY */
+  .no-results { text-align:center; padding:64px 24px; color:var(--text3); }
+  .nr-icon { width:54px; height:54px; border-radius:50%; background:var(--pink); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .no-results p { font-size:14px; line-height:1.6; }
+
+  .bottom-pad { height:env(safe-area-inset-bottom, 12px); flex-shrink:0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <div class="screen" id="home-screen">
+    <div class="home-header">
+      <div class="hdr-blobs">
+        <div class="hdr-blob b1"></div>
+        <div class="hdr-blob b2"></div>
+        <div class="hdr-blob b3"></div>
+      </div>
+      <div class="logo-eye">BCI600 · Smart Scoop · Çağrı Gürbüz</div>
+      <div class="logo-name">Dondurma <em>Tarifleri</em></div>
+      <div class="hdr-count" id="hdr-count"></div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="search-input" placeholder="Tarif veya malzeme ara…" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="cat-tabs" id="cat-tabs"></div>
+    <div class="recipes-list" id="recipes-list"></div>
+    <div class="bottom-pad"></div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="screen hidden" id="detail-screen">
+    <div class="detail-topbar">
+      <div class="back-btn" id="back-btn">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="detail-topbar-cat" id="detail-topbar-cat"></div>
+    </div>
+
+    <div class="detail-hero" id="detail-hero"></div>
+
+    <div class="detail-tabs">
+      <div class="dtab active" data-tab="ing">Malzemeler</div>
+      <div class="dtab" data-tab="steps">Hazırlanış</div>
+    </div>
+
+    <div class="detail-body">
+      <div class="tab-panel active" id="panel-ing"></div>
+      <div class="tab-panel" id="panel-steps"></div>
+    </div>
+
+    <div class="bottom-pad"></div>
+  </div>
+
+</div>
+<script>
+const CAT_LABELS = { dondurma:"Dondurma", gelato:"Gelato", sorbe:"Sorbe", cubuk:"Çubuk Dondurma", sos:"Kaplama Sosu" };
+const CATEGORIES = [
+  {id:"all",label:"Tümü"},{id:"dondurma",label:"Dondurma"},{id:"gelato",label:"Gelato"},
+  {id:"sorbe",label:"Sorbe"},{id:"cubuk",label:"Çubuk"},{id:"sos",label:"Sos"},
+];
+
+// Category color scheme
+const CS = {
+  dondurma: {bg:"#F9C8D8",txt:"#6B3A2A"},
+  gelato:   {bg:"#C8F0DC",txt:"#1E5C3A"},
+  sorbe:    {bg:"#FFCC80",txt:"#6B3A2A"},
+  cubuk:    {bg:"#F9C8D8",txt:"#6B3A2A"},
+  sos:      {bg:"#FFFBE8",txt:"#6B3A2A",border:"1.5px solid rgba(107,58,42,0.2)"},
+};
+
+// Ingredient pill colors cycling
+const PILLS = [
+  {bg:"#F9C8D8",c:"#6B3A2A"},{bg:"#C8F0DC",c:"#1E5C3A"},{bg:"#FFCC80",c:"#6B3A2A"},
+  {bg:"#F9C8D8",c:"#6B3A2A"},{bg:"#C8F0DC",c:"#1E5C3A"},{bg:"#FFCC80",c:"#6B3A2A"},
+  {bg:"#F9C8D8",c:"#6B3A2A"},{bg:"#C8F0DC",c:"#1E5C3A"},{bg:"#FFCC80",c:"#6B3A2A"},
+];
+
+const RECIPES = [
+  {id:1,title:"Kaymaklı Dondurma",category:"dondurma",servings:4,ingredients:[{amount:"450 ml",name:"Süt"},{amount:"50 gr",name:"Kaymak"},{amount:"80 gr",name:"Şeker"},{amount:"4 gr",name:"Yerli salep"}],steps:["Süt ve kaymağı ocağa koyup kaynamaya bırakın.","Şeker ve salebi iyice karıştırın.","Kaynayan süt karışımına salep ve şeker karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen dondurma hemen servis edilebilir; daha sert istenirse –18°C derin dondurucuda sertleştirilip saklanabilir."]},
+  {id:2,title:"Çikolatalı Dondurma",category:"dondurma",servings:4,ingredients:[{amount:"450 ml",name:"Süt"},{amount:"50 gr",name:"Krema"},{amount:"80 gr",name:"Şeker"},{amount:"10 gr",name:"Kakao"},{amount:"25 gr",name:"Bitter çikolata"},{amount:"4 gr",name:"Yerli salep"}],steps:["Süt ve kremayı ocağa koyup kaynamaya bırakın.","Şeker, salep ve kakaoyu iyice karıştırın.","Kaynayan süt karışımına kakaolu şeker ve salep karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra küçük parçalar halindeki bitter çikolatayı karıştırarak ekleyin.","Soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir; daha sert istenirse –18°C derin dondurucuda saklanabilir."]},
+  {id:3,title:"Karamelli Dondurma",category:"dondurma",servings:4,ingredients:[{amount:"400 ml",name:"Süt"},{amount:"100 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"4 gr",name:"Yerli salep"}],steps:["50 gr şekeri kaynatma tenceresine koyup karamel yapın.","Kremayı yavaş yavaş ekleyin.","Sütü ilave edip kaynamaya bırakın.","Kalan şekeri ve salebi iyice karıştırın.","Kaynayan karamelli süt karışımına salep ve şeker karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Badem, fıstık veya fındık krokan parçaları ile servis edilebilir. –18°C derin dondurucuda saklanabilir."]},
+  {id:4,title:"Antep Fıstıklı Dondurma",category:"dondurma",servings:5,ingredients:[{amount:"500 ml",name:"Süt"},{amount:"100 gr",name:"Antep fıstığı ezmesi"},{amount:"80 gr",name:"Şeker"},{amount:"4 gr",name:"Yerli salep"},{amount:"50 gr",name:"Antep fıstığı (servis için)"}],steps:["50 gr antep fıstığı ezmesi ve sütü ocağa koyup kaynamaya bırakın.","Şeker ve salebi iyice karıştırın.","Kaynayan süt karışımına salep ve şeker karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra kalan antep fıstığı ezmesini ekleyip soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Kırık antep fıstıklarını ekleyerek servis edin. –18°C derin dondurucuda saklanabilir."]},
+  {id:5,title:"Kahveli Dondurma",category:"dondurma",servings:4,note:"Kahve miktarı ve kahve çeşidi isteğe bağlı olarak değiştirilebilir.",ingredients:[{amount:"400 ml",name:"Süt"},{amount:"100 gr",name:"Krema"},{amount:"80 gr",name:"Şeker"},{amount:"20 gr",name:"Türk kahvesi"},{amount:"4 gr",name:"Yerli salep"},{amount:"½ adet",name:"Limon kabuğu"}],steps:["Süt, limon kabuğu ve kahveyi ocağa koyup kaynamaya bırakın.","Kaynamaya başlayan karışımı ocaktan alıp süzün.","Kahve süt karışımına kremayı ilave edip tekrar kaynamaya bırakın.","Şeker ve salebi iyice karıştırın.","Kaynayan kahveli süt karışımına salep ve şeker karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen dondurma hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:6,title:"Tahinli Dondurma",category:"dondurma",servings:4,ingredients:[{amount:"500 ml",name:"Süt"},{amount:"100 gr",name:"Tahin"},{amount:"80 gr",name:"Şeker"},{amount:"4 gr",name:"Yerli salep"}],steps:["Sütü ocağa koyup kaynamaya bırakın.","Şeker ve salebi iyice karıştırın.","Kaynayan süt karışımına salep ve şeker karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra tahini karıştırarak ekleyin.","Soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Kavrulmuş susam ekleyerek servis edilebilir. –18°C derin dondurucuda saklanabilir."]},
+  {id:7,title:"Ekmekli Dondurma",category:"dondurma",servings:5,ingredients:[{amount:"1000 ml",name:"Süt"},{amount:"5 dilim",name:"Kızarmış ekşi mayalı ekmek"},{amount:"50 gr",name:"Kaymak"},{amount:"80 gr",name:"Şeker"},{amount:"4 gr",name:"Yerli salep"}],steps:["Sütü ocağa koyup kaynatın.","Kızarmış ekmek dilimlerinin üzerine kaynamış sütü döküp 30 dk dinlendirin.","Kızarmış ekmekli sütü süzün ve bu sütten 500 ml alarak tekrar ocağa koyun.","Şeker ve salebi iyice karıştırın.","Kaynayan kızarmış ekmekli süte salep ve şeker karışımını ekleyip karıştırarak 2 dk pişirin.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Kızarmış ekmek parçaları ile servis edilebilir. –18°C derin dondurucuda saklanabilir."]},
+  {id:8,title:"Sade Gelato",category:"gelato",servings:4,ingredients:[{amount:"450 gr",name:"Süt"},{amount:"150 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"15 gr",name:"Süt tozu"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Şeker, süt tozu ve salebi iyice karıştırın.","Süt ve krema ekleyerek ocağa alın.","Karıştırılarak pişirilen karışım kaynama derecesine yakın olduğunda kapatın.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen dondurma hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:9,title:"Bitter Çikolatalı Gelato",category:"gelato",servings:4,ingredients:[{amount:"400 gr",name:"Süt"},{amount:"35 gr",name:"Meyve şekeri"},{amount:"25 gr",name:"Şeker"},{amount:"10 gr",name:"Süt tozu"},{amount:"3 gr",name:"Avrupa salebi"},{amount:"20 gr",name:"Bal"},{amount:"150 gr",name:"Bitter çikolata"}],steps:["Şekerleri, süt tozunu ve salebi iyice karıştırın.","Sütü ekleyerek ocağa alın.","Karıştırılarak pişirilen karışım kaynama derecesine yakın olduğunda ocağı kapatın.","Bal ve bitter çikolatayı ekleyerek soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:10,title:"Fildişi Çikolatalı Gelato",category:"gelato",servings:4,ingredients:[{amount:"400 gr",name:"Süt"},{amount:"35 gr",name:"Şeker"},{amount:"25 gr",name:"Meyve şekeri"},{amount:"3 gr",name:"Avrupa salebi"},{amount:"30 gr",name:"Bal"},{amount:"120 gr",name:"Fildişi (beyaz) çikolata"}],steps:["Şekerleri ve salebi iyice karıştırın.","Sütü ekleyerek ocağa alın.","Karıştırılarak pişirilen karışım kaynama derecesine yakın olduğunda kapatın.","Bal ve fildişi çikolatayı ekleyerek soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:11,title:"Bebe Bisküvili Gelato",category:"gelato",servings:5,ingredients:[{amount:"1000 ml",name:"Süt"},{amount:"125 gr",name:"Bebe bisküvisi"},{amount:"150 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"15 gr",name:"Süt tozu"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["125 gr bebe bisküvisinin üzerine sütün tamamını ekleyip 1 saat dinlendirin.","Bebe bisküvili süt karışımını süzün.","Bu sütten 450 ml alarak krema ekleyin ve ocağa alın.","Şeker, süt tozu ve salebi iyice karıştırarak karışıma ekleyin.","Sürekli karıştırılarak pişirilen karışım kaynama derecesine yakın olduğunda kapatın.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:12,title:"Naneli Çıtır Çikolatalı Gelato",category:"gelato",servings:4,note:"Bu dondurmayı isteğe bağlı olarak sadece naneli veya sadece çıtır çikolatalı olarak da yapabilirsiniz.",ingredients:[{amount:"450 gr",name:"Süt"},{amount:"150 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"15 gr",name:"Süt tozu"},{amount:"¼ demet",name:"Nane"},{amount:"2–3 damla",name:"Nane yağı"},{amount:"5 gr",name:"Avrupa salebi"},{amount:"20 gr",name:"Bitter çikolata"},{amount:"20 gr",name:"Hindistan cevizi yağı"}],steps:["50 gr şeker, süt tozu ve salebi iyice karıştırın.","Süt ve krema ekleyerek ocağa alın.","50 gr şeker ve nane yapraklarını havanda macun kıvamı alana kadar ezin.","Macunu ocaktaki karışıma ilave edin.","Karıştırılarak pişirilen karışım kaynama derecesine yakın olduğunda kapatın.","Ocağı kapattıktan sonra soğuması için başka bir kaba alın.","Nane yağını ilave ederek karıştırın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Bitter çikolata ve hindistan cevizi yağını benmari usulü eritin.","Karıştırma süresinin son 2 dakikasında çikolata sosunu dondurma makinenize yavaş yavaş ilave edin.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:13,title:"Yoğurtlu Gelato",category:"gelato",servings:4,ingredients:[{amount:"450 gr",name:"Süzme yoğurt"},{amount:"125 ml",name:"Süt"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Sütü kaynatın.","Şeker ve salebi karıştırma kabına alıp iyice karıştırın.","Üzerine sıcak sütü ilave edip karıştırmaya devam edin.","Blender haznesine yoğurdu koyun ve karışımı ilave edin.","2–3 dk yüksek devirde çalıştırın.","En az 6 saat buzdolabında (+5°C) dinlendirin.","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Vişne, frambuaz veya yaban mersini reçeli taneleri ile çeşitlendirilebilir.","Daha sert bir kıvam istenirse –18°C derin dondurucuda sertleştirilip saklanabilir."]},
+  {id:14,title:"Karamelize Bisküvili Gelato",category:"gelato",servings:4,ingredients:[{amount:"500 ml",name:"Süt"},{amount:"100 gr",name:"Karamelize bisküvi kreması"},{amount:"80 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Sütü ocağa koyup kaynamaya bırakın.","Şeker ve salebi iyice karıştırın.","Kaynayan süt ocaktan alın ve karışımın üzerine dökün.","Salep, şeker ve süt karışımını blendera alın ve 2 dk çalıştırın.","Karışıma karamelize bisküvi kremasını ekleyin.","Soğuması için başka bir kaba alın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Karamelize bisküvi kırıkları ekleyerek servis edilebilir. –18°C derin dondurucuda saklanabilir."]},
+  {id:15,title:"Hindistan Cevizli Gelato",category:"gelato",servings:2,ingredients:[{amount:"200 ml",name:"Süt"},{amount:"200 ml",name:"Hindistan cevizi sütü"},{amount:"200 gr",name:"Hindistan cevizi kreması"},{amount:"80 gr",name:"Şeker"},{amount:"6 gr",name:"Avrupa salebi"}],steps:["Sütü ocağa koyup kaynamaya bırakın.","Şeker ve salebi iyice karıştırın.","Kaynayan süt ocaktan alın ve karışımın üzerine dökün.","Salep, şeker ve süt karışımını blendera alın ve 2 dk çalıştırın.","Hindistan cevizi sütü ve kremasını ekleyip karıştırın. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hindistan cevizi tozu eklenerek servis edilebilir. –18°C derin dondurucuda saklanabilir."]},
+  {id:16,title:"Çilekli Sorbe",category:"sorbe",servings:4,note:"Aynı tarif çilek yerine frambuaz, böğürtlen gibi kırmızı meyvelerle yapılabilir. Şeker miktarı meyve seçimine göre ayarlanmalıdır.",ingredients:[{amount:"400 gr",name:"Ayıklanmış çilek"},{amount:"180 gr",name:"Kaynamış sıcak su"},{amount:"90 gr",name:"Şeker"},{amount:"40 gr",name:"Meyve şekeri"},{amount:"4 gr",name:"Avrupa salebi"}],steps:["Şekerleri ve salebi karıştırın.","Karışıma sıcak su ekleyerek karıştırmaya devam edin.","Karışımı blendere koyulan çileklerin üzerine ekleyin ve 2 dk yüksek hızda çalıştırın.","En az 6 saat dinlendirin. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:17,title:"Limonlu Sorbe",category:"sorbe",servings:4,note:"Bu tarifle yapılan limonlu sorbenin rengi beyaz olacaktır. Daha sarı görünüm için iki limon ve yarım portakal kabuğunun renkli kısımlarını şekere ilave ederek renkleri şekere verin.",ingredients:[{amount:"400 ml",name:"Kaynamış sıcak su"},{amount:"100 ml",name:"Limon suyu"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Şeker ve salebi karıştırın.","Kaynamış suyu sürekli karıştırarak ilave edin.","Son olarak limon suyu ilave edin.","En az 6 saat dinlendirin. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:18,title:"Şeftali Sorbe",category:"sorbe",servings:2,ingredients:[{amount:"200 gr",name:"Ayıklanmış şeftali"},{amount:"250 gr",name:"Portakal suyu"},{amount:"100 ml",name:"Kaynamış sıcak su"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Şekerleri ve salebi karıştırın.","Karışıma sıcak su ekleyerek karıştırmaya devam edin.","Karışımı blendera koyulan şeftali ve portakal suyu üzerine ekleyin ve 2 dk yüksek hızda çalıştırın.","En az 6 saat dinlendirin. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:19,title:"Orman Meyveli Sorbe",category:"sorbe",servings:4,ingredients:[{amount:"400 gr",name:"Karışık orman meyvesi (böğürtlen, frambuaz, çilek, yaban mersini, frenk üzümü)"},{amount:"200 gr",name:"Kaynamış sıcak su"},{amount:"100 gr",name:"Şeker"},{amount:"50 gr",name:"Meyve şekeri"},{amount:"6 gr",name:"Avrupa salebi"}],steps:["Şekerleri ve salebi karıştırın.","Karışıma sıcak su ekleyerek karıştırmaya devam edin.","Karışımı blendera koyduğunuz orman meyvelerinin üzerine ekleyin ve 2 dk yüksek hızda çalıştırın.","En az 6 saat dinlendirin. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:20,title:"Ananaslı Sorbe",category:"sorbe",servings:2,ingredients:[{amount:"250 gr",name:"Ananas suyu"},{amount:"100 gr",name:"Ananas (parçalanmış)"},{amount:"150 gr",name:"Hindistan cevizi sütü"},{amount:"100 ml",name:"Kaynamış sıcak su"},{amount:"100 gr",name:"Şeker"},{amount:"50 gr",name:"Bal"},{amount:"6 gr",name:"Avrupa salebi"}],steps:["Şeker ve salebi karıştırın.","Karışıma sıcak su ekleyerek karıştırmaya devam edin.","Ananas parçaları, ananas suyu, hindistan cevizi sütü ve balın üzerine karışımı ekleyin ve 2 dk yüksek hızda çalıştırın.","En az 6 saat dinlendirin. (Buzdolabında +5°C'de bir gün beklemesi önerilir.)","İyice soğuyan karışımı blenderda 2 dk yüksek devirde çalıştırın. (Opsiyonel)","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hemen servis edilebilir veya –18°C derin dondurucuda saklanabilir."]},
+  {id:21,title:"Vanilyalı Çubuk Dondurma",category:"cubuk",servings:6,servingsNote:"kalıba göre değişiklik gösterebilir",note:"İsteğe bağlı olarak ara katmanlara kakaolu fındık kreması, kavrulmuş kuruyemiş veya meyve kuruları ilave ederek çeşitlendirebilirsiniz.",ingredients:[{amount:"250 ml",name:"Kaynamış sıcak süt"},{amount:"250 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"},{amount:"1 damla",name:"Vanilya özütü"}],steps:["Şeker ve salebi karıştırın.","Sıcak sütü ekleyerek karıştırmaya devam edin.","Kremayı ve vanilya özütünü ekleyerek 2 dk daha karıştırın.","Karışımı 2 saat dinlendirin.","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen karışımı silikon kalıpların çubuk deliklerine kadar doldurun.","Ahşap çubukları kalıpların 2/3'üne gelecek kadar içeri sokun.","Üzerini kaplayacak kadar karışımı ilave edin.","Derin dondurucuda (–18°C) en az 6 saat dinlendirin.","Kalıplardan çıkarıp servis edilebileceği gibi çikolatalı sos ile kaplayabilirsiniz."]},
+  {id:22,title:"Kakaolu Çubuk Dondurma",category:"cubuk",servings:6,servingsNote:"kalıba göre değişiklik gösterebilir",note:"İsteğe bağlı olarak ara katmanlara kakaolu fındık kreması, kavrulmuş kuruyemiş veya meyve kuruları ilave ederek çeşitlendirebilirsiniz.",ingredients:[{amount:"250 ml",name:"Süt"},{amount:"250 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"},{amount:"5 gr",name:"Kakao"}],steps:["Şeker ve salebi karıştırın.","Kakao ve sütü kaynatın.","Sıcak kakaolu sütü ekleyerek karıştırmaya devam edin.","Kremayı ekleyerek 2 dk daha karıştırın.","Karışımı 2 saat dinlendirin.","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen karışımı silikon kalıpların çubuk deliklerine kadar doldurun.","Ahşap çubukları kalıpların 2/3'üne gelecek kadar içeri sokun.","Üzerini kaplayacak kadar karışımı ilave edin.","Derin dondurucuda (–18°C) en az 6 saat dinlendirin.","Kalıplardan çıkarıp servis edilebileceği gibi çikolatalı sos ile kaplayabilirsiniz."]},
+  {id:23,title:"Frambuazlı Çubuk Dondurma",category:"cubuk",servings:6,servingsNote:"kalıba göre değişiklik gösterebilir",note:"İsteğe bağlı olarak frambuaz yerine diğer kırmızı meyveleri kullanabilirsiniz.",ingredients:[{amount:"250 gr",name:"Frambuaz"},{amount:"150 ml",name:"Kaynamış sıcak süt"},{amount:"100 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Şeker ve salebi karıştırın.","Sıcak sütü ekleyerek karıştırmaya devam edin.","Kremayı ekleyerek 2 dk daha karıştırın.","Frambuaz ve karışımı blenderda yüksek devirde 2 dk çalıştırın.","Karışımı 2 saat dinlendirin.","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen karışımı silikon kalıpların çubuk deliklerine kadar doldurun.","Ahşap çubukları kalıpların 2/3'üne gelecek kadar içeri sokun.","Üzerini kaplayacak kadar karışımı ilave edin.","Derin dondurucuda (–18°C) en az 6 saat dinlendirin.","Kalıplardan çıkarıp servis edin."]},
+  {id:24,title:"Kavunlu Buz Çubukları",category:"cubuk",servings:6,servingsNote:"kalıba göre değişiklik gösterebilir",ingredients:[{amount:"400 gr",name:"Kavun"},{amount:"100 gr",name:"Kaynamış sıcak su"},{amount:"80 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"}],steps:["Şeker ve salebi karıştırın.","Kaynamış sıcak suyu ekleyerek karıştırmaya devam edin.","Kavunları ekleyerek blenderda 2 dk daha karıştırın.","Karışımı 2 saat dinlendirin.","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen karışımı silikon kalıpların çubuk deliklerine kadar doldurun.","Ahşap çubukları kalıpların 2/3'üne gelecek kadar içeri sokun.","Üzerini kaplayacak kadar karışımı ilave edin.","Derin dondurucuda (–18°C) en az 6 saat dinlendirin.","Kalıplardan çıkarıp servis edin.","İsteğe bağlı olarak kavun yerine diğer meyveleri de kullanabilirsiniz."]},
+  {id:25,title:"Kahve Çubuk Dondurma",category:"cubuk",servings:6,servingsNote:"kalıba göre değişiklik gösterebilir",note:"İsteğe bağlı olarak ara katmanlara damla çikolata veya kahve çekirdeği taneleri ilave edebilirsiniz.",ingredients:[{amount:"300 ml",name:"Süt"},{amount:"200 ml",name:"Kaynamış sıcak su"},{amount:"50 gr",name:"Krema"},{amount:"100 gr",name:"Şeker"},{amount:"5 gr",name:"Avrupa salebi"},{amount:"2–3 shot",name:"Espresso"}],steps:["Şeker ve salebi karıştırın.","Sıcak kaynamış suyu ilave ederek karıştırmaya devam edin.","Süt, krema ve espressoyu ekleyerek 2 dk daha karıştırın.","Karışımı 2 saat dinlendirin.","Karışımı dondurma makinesine alın ve sert dondurma modunda çalıştırın.","Hazır hale gelen karışımı silikon kalıpların çubuk deliklerine kadar doldurun.","Ahşap çubukları kalıpların 2/3'üne gelecek kadar içeri sokun.","Üzerini kaplayacak kadar karışımı ilave edin.","Derin dondurucuda (–18°C) en az 6 saat dinlendirin.","Kalıplardan çıkarıp servis edilebileceği gibi çikolatalı sos ile kaplayabilirsiniz."]},
+  {id:26,title:"Bitter Çikolatalı Kaplama Sosu",category:"sos",servings:2,note:"Tercihinize göre kavrulmuş fındık, antep fıstığı veya badem kırıkları ekleyebilirsiniz.",ingredients:[{amount:"200 gr",name:"Bitter çikolata"},{amount:"200 gr",name:"Hindistan cevizi yağı"}],steps:["Çikolata ve hindistan cevizi yağını bir kaba alın.","Benmari usulü eritin."]},
+  {id:27,title:"Sütlü Çikolatalı Kaplama Sosu",category:"sos",servings:2,note:"Tercihinize göre kavrulmuş fındık, antep fıstığı veya badem kırıkları ekleyebilirsiniz.",ingredients:[{amount:"200 gr",name:"Sütlü çikolata"},{amount:"180 gr",name:"Hindistan cevizi yağı"}],steps:["Çikolata ve hindistan cevizi yağını bir kaba alın.","Benmari usulü eritin."]},
+  {id:28,title:"Fildişi Çikolatalı Kaplama Sosu",category:"sos",servings:2,note:"Tercihinize göre kavrulmuş fındık, antep fıstığı veya badem kırıkları ekleyebilirsiniz.",ingredients:[{amount:"200 gr",name:"Beyaz çikolata"},{amount:"180 gr",name:"Hindistan cevizi yağı"}],steps:["Çikolata ve hindistan cevizi yağını bir kaba alın.","Benmari usulü eritin."]},
+];
+
+let activeCat = "all", query = "", currentRecipe = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderTabs();
+  renderList();
+  document.getElementById("search-input").addEventListener("input", e => { query = e.target.value.trim(); renderList(); });
+  document.getElementById("back-btn").addEventListener("click", close);
+  document.querySelectorAll(".dtab").forEach(t => t.addEventListener("click", () => {
+    const tab = t.dataset.tab;
+    document.querySelectorAll(".dtab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById("panel-"+tab).classList.add("active");
+    document.querySelector(".detail-body").scrollTop = 0;
+  }));
+});
+
+function renderTabs() {
+  const wrap = document.getElementById("cat-tabs");
+  wrap.innerHTML = [{id:"all",label:"Tümü"},{id:"dondurma",label:"Dondurma"},{id:"gelato",label:"Gelato"},{id:"sorbe",label:"Sorbe"},{id:"cubuk",label:"Çubuk"},{id:"sos",label:"Sos"}]
+    .map(c => `<div class="cat-tab${c.id===activeCat?' active':''}" data-cat="${c.id}">${c.label}</div>`).join("");
+  wrap.querySelectorAll(".cat-tab").forEach(el => el.addEventListener("click", () => {
+    activeCat = el.dataset.cat;
+    wrap.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
+    el.classList.add("active");
+    renderList();
+  }));
+}
+
+function filtered() {
+  let r = RECIPES;
+  if (activeCat !== "all") r = r.filter(x => x.category === activeCat);
+  if (query) { const q = query.toLowerCase(); r = r.filter(x => x.title.toLowerCase().includes(q) || x.ingredients.some(i => i.name.toLowerCase().includes(q))); }
+  return r;
+}
+
+function renderList() {
+  const list = document.getElementById("recipes-list");
+  const f = filtered();
+  document.getElementById("hdr-count").textContent = f.length + " tarif";
+  if (!f.length) { list.innerHTML = `<div class="no-results"><div class="nr-icon"><svg width="22" height="22" fill="none" stroke="#6B3A2A" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><p>Sonuç bulunamadı.</p></div>`; return; }
+  if (activeCat === "all" && !query) {
+    const g = {}; f.forEach(r => { (g[r.category] = g[r.category]||[]).push(r); });
+    list.innerHTML = ["dondurma","gelato","sorbe","cubuk","sos"].filter(c=>g[c]).map(c => `<div class="section-label">${CAT_LABELS[c]}</div>`+g[c].map((r,i)=>cardHTML(r,i)).join("")).join("");
+  } else { list.innerHTML = f.map((r,i) => cardHTML(r,i)).join(""); }
+  list.querySelectorAll(".recipe-card").forEach(el => el.addEventListener("click", () => open(+el.dataset.id)));
+}
+
+function cardHTML(r, i) {
+  const cs = CS[r.category];
+  const bdr = cs.border ? `border:${cs.border};` : '';
+  return `<div class="recipe-card" data-id="${r.id}" style="animation-delay:${i*35}ms">
+    <div class="card-swatch" style="background:${cs.bg};${bdr}"><span class="card-mono" style="color:${cs.txt}">${r.title.charAt(0)}</span></div>
+    <div class="card-info">
+      <div class="card-title">${r.title}</div>
+      <div class="card-meta">
+        <span class="card-type">${CAT_LABELS[r.category]}</span>
+        <span class="card-srv"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${r.servings} kişi</span>
+      </div>
+    </div>
+    <div class="card-arrow"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+  </div>`;
+}
+
+function open(id) {
+  currentRecipe = RECIPES.find(r => r.id === id);
+  if (!currentRecipe) return;
+  const r = currentRecipe, cs = CS[r.category];
+  const bdr = cs.border ? `border:${cs.border};` : '';
+
+  document.getElementById("detail-topbar-cat").textContent = CAT_LABELS[r.category];
+  document.getElementById("detail-hero").innerHTML = `
+    <div class="detail-band" style="background:${cs.bg};${bdr}"></div>
+    <div class="detail-title">${r.title}</div>
+    <div class="detail-badges">
+      <div class="badge"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${r.servings} kişilik${r.servingsNote?' · '+r.servingsNote:''}</div>
+      <div class="badge"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>${r.ingredients.length} malzeme</div>
+      <div class="badge"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.steps.length} adım</div>
+    </div>`;
+
+  document.getElementById("panel-ing").innerHTML =
+    `<div class="ing-header">${r.ingredients.length} Malzeme</div>` +
+    r.ingredients.map((ing,i) => {
+      const p = PILLS[i%PILLS.length];
+      return `<div class="ingredient-item"><div class="ing-pill" style="background:${p.bg};color:${p.c}">${ing.amount}</div><div class="ing-name">${ing.name}</div></div>`;
+    }).join("");
+
+  document.getElementById("panel-steps").innerHTML =
+    r.steps.map((s,i) => `<div class="step-item"><div class="step-num" style="background:${cs.bg};color:${cs.txt};${bdr}">${i+1}</div><div class="step-text">${s}</div></div>`).join("") +
+    (r.note ? `<div class="note-box"><strong>Not:</strong> ${r.note}</div>` : "");
+
+  document.querySelectorAll(".dtab").forEach(t => t.classList.toggle("active", t.dataset.tab==="ing"));
+  document.getElementById("panel-ing").classList.add("active");
+  document.getElementById("panel-steps").classList.remove("active");
+  document.querySelector(".detail-body").scrollTop = 0;
+
+  document.getElementById("home-screen").classList.add("slide-left");
+  document.getElementById("detail-screen").classList.remove("hidden");
+}
+
+function close() {
+  document.getElementById("home-screen").classList.remove("slide-left");
+  document.getElementById("detail-screen").classList.add("hidden");
+}
+</script>
+</body>
+</html>
